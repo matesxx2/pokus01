@@ -31,6 +31,7 @@ public class SimpleSerialization {
     }
     
     private static void printMap(HashMap map){
+        //pridan cvicny komentar...
         System.out.println("Obsah mapy:");
         Collection<Object> col = map.values();
         Iterator iterator = col.iterator();
