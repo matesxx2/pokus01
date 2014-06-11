@@ -9,6 +9,7 @@ package simpledraw;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,7 +49,11 @@ public class DrawExample1 extends JFrame {
             movePointX1(100, 700);
             movePointX2(700, 100);
             g.drawLine(x1, y1, x2, y2);
+            
+            Rectangle r =  getVisibleRect();
+            System.out.println("Canvas:" + r);
         }
+        
         
         private void movePointX1(int x, int y){
             x1=x;
@@ -61,12 +66,41 @@ public class DrawExample1 extends JFrame {
         }
     }
     
+    class MyJScrollPane extends JScrollPane{
+        
+        private final MyCanvas canvas;
+        public MyJScrollPane(MyCanvas canvas){
+            super(canvas);
+            this.canvas = canvas;
+            JPanel glass;
+            glass = new JPanel(){
+                
+                @Override
+                protected void paintComponent(Graphics g) {
+                    g.setColor(Color.RED);
+                    Rectangle r =  getVisibleRect();
+                    
+                    g.drawRect(r.x+50, r.y+50, r.width-100, r.height-100);
+                    
+                    r =  canvas.getVisibleRect();
+                    g.setColor(Color.WHITE);
+                    g.fillRect(0, 0, r.width, 50);
+                    
+                    System.out.println("JPanel:" + r);
+                }
+                
+            };
+            glass.setOpaque(false);
+            setGlassPane(glass);
+            glass.setVisible(true);
+        }
+    }
     
     public DrawExample1(){
         super("DrawExample1 - one big dwrawing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(300, 300);
-        getContentPane().add(new JScrollPane(new MyCanvas()));
+        getContentPane().add(new MyJScrollPane(new MyCanvas()));
     }
 
     
