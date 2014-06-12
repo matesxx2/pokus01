@@ -20,6 +20,12 @@ import javax.swing.JScrollPane;
  */
 public class DrawExample1 extends JFrame {
     
+    public void jedna(){
+        
+    }
+    
+   
+    
     class MyCanvas extends JPanel{
         
         private int x1 = 100;
@@ -69,6 +75,7 @@ public class DrawExample1 extends JFrame {
     class MyJScrollPane extends JScrollPane{
         
         private final MyCanvas canvas;
+        private int cislo = 1;
         public MyJScrollPane(MyCanvas canvas){
             super(canvas);
             this.canvas = canvas;
@@ -81,7 +88,9 @@ public class DrawExample1 extends JFrame {
                     Rectangle r =  getVisibleRect();
                     
                     g.drawRect(r.x+50, r.y+50, r.width-100, r.height-100);
-                    
+                    cislo=cislo+1;
+                    System.out.println("cislo:"+cislo);
+                    g.drawString(Integer.toString(cislo), r.x+250, r.y+150);
                     r =  canvas.getVisibleRect();
                     g.setColor(Color.WHITE);
                     g.fillRect(0, 0, r.width, 50);
