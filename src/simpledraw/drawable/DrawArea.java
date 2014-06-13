@@ -9,6 +9,7 @@ package simpledraw.drawable;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,8 @@ public class DrawArea{
         protected void paintComponent(Graphics g) {
             super.paintComponent(g); 
             paintDrawables(g);
+            System.out.println("DA");
+            
         } 
         
         @Override
@@ -64,8 +67,15 @@ public class DrawArea{
     public DrawArea(int width, int height){
         listOfDrawables = new ArrayList();
         drawingPanel = new DrawingPanel(width, height);
-        scrollPane = new JScrollPane(drawingPanel);    
-    }
+        scrollPane = new JScrollPane(drawingPanel){ 
+            @Override
+            public void paint(Graphics g) {
+                super.paint(g); //To change body of generated methods, choose Tools | Templates.
+                paintAtScrollPane(g);
+                repaint();
+            }
+        };    
+    }  
     
     public final JScrollPane getDrawingArea(){
         return scrollPane;
@@ -92,9 +102,39 @@ public class DrawArea{
         return listOfDrawables.remove(i);
     }
     
-    private void paintDrawables(Graphics g){
+    /**
+     * Returns place and size of displayed components with scroll bars
+     * @return 
+     */
+    public Rectangle getScrollVisibleArea(){
+        return scrollPane.getVisibleRect();
+    }
+    
+    /**
+     * Return place and size of visible part of components without scrol bars
+     * @return 
+     */
+    public Rectangle getDrawVisibleArea(){
+        return drawingPanel.getVisibleRect();
+    }
+    
+    /**
+     * It paints all {@link Drawable} objects
+     * @param g 
+     */
+    protected void paintDrawables(Graphics g){
         Iterator<Drawable> iterator = listOfDrawables.listIterator();
         while(iterator.hasNext())
             iterator.next().draw(g);
     }
+    
+    /**
+     * Paints at scrollPane
+     * 
+     * @param g 
+     */
+    protected void paintAtScrollPane(Graphics g){
+       
+    }
+            
 }
