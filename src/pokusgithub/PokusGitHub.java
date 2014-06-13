@@ -17,6 +17,8 @@ public class PokusGitHub {
      */
     public static void main(String[] args) {
         System.out.println("NAZDAR");
+        String s1[] = new String[]{"jedna","dva","tri"};
+        System.out.println("s1:" + java.util.Arrays.toString(s1));
     }
     
 }

@@ -6,60 +6,23 @@
 
 package simpledraw;
 
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import simpledraw.drawable.DrawArea;
 
 /**
- *
+ * This class represent basic pane for graph.
+ * It enables set colors, grids,...
  * @author kramarm
  */
-public class GraphPane extends JScrollPane{
+public class GraphPane extends DrawArea{
     
-    final class DrawingPanel extends JPanel{
-        private final int width;
-        private final int height;
-        
-        public DrawingPanel(int width, int height){
-            super();
-            setSize(getPreferredSize());
-            this.width = width;
-            this.height = height;
-        }
-        
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g); 
-            paintDrawables(g);
-        } 
-        
-        @Override
-        public Dimension getPreferredSize(){
-            return new Dimension(width, height);
-        }
-        
-    }
     
-    private final List<Drawable> listOfDrawables;
+    
     
     public GraphPane(int width, int height){
-        super();
-        add(new DrawingPanel(width, height));
-        listOfDrawables = new ArrayList();
+        super(width, height);   
     }
     
-    public boolean addDrawable(Drawable drawable){
-        return listOfDrawables.add(drawable);
-    }
-    
-    private void paintDrawables(Graphics g){
-        Iterator<Drawable> iterator = listOfDrawables.listIterator();
-        while(iterator.hasNext())
-            iterator.next().draw(g);
-    }
+   
 }
