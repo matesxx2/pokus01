@@ -129,6 +129,15 @@ public class DrawArea implements ComponentListener{
     }
     
     /**
+     * Return size of whole drawing area
+     * @return 
+     */
+    public Rectangle getDrawAreaBounds(){
+        return drawingPanel.getBounds();
+    }
+            
+    
+    /**
      * It paints all {@link Drawable} objects
      * @param g 
      */
