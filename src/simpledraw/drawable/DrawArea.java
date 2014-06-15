@@ -10,6 +10,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +24,8 @@ import javax.swing.JScrollPane;
  * and stores {@link Drawable} objects which are painted at created area.
  * @author kramarm
  */
-public class DrawArea{
+public class DrawArea implements ComponentListener{
+
     /*tuned JPanel (drawing area)*/
     final class DrawingPanel extends JPanel{
         public int width;
@@ -41,7 +44,6 @@ public class DrawArea{
         protected void paintComponent(Graphics g) {
             super.paintComponent(g); 
             paintDrawables(g);
-            System.out.println("DA");
             
         } 
         
@@ -74,8 +76,16 @@ public class DrawArea{
                 paintAtScrollPane(g);
                 repaint();
             }
-        };    
-    }  
+        };
+        
+        scrollPane.addComponentListener(this);
+    }
+    
+    public void resizeDrawingArea(int width, int height){
+        drawingPanel.width = width;
+        drawingPanel.height = height;
+        drawingPanel.setSize(width, height);
+    }
     
     public final JScrollPane getDrawingArea(){
         return scrollPane;
@@ -135,6 +145,32 @@ public class DrawArea{
      */
     protected void paintAtScrollPane(Graphics g){
        
+    }
+    
+    /**
+     * Catch resizing of component
+     */
+    protected void drawAreaResized(){
+    }
+    
+    @Override
+    public void componentResized(ComponentEvent e) {
+        drawAreaResized();
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
             
 }
