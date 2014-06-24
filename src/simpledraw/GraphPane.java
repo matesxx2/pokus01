@@ -25,6 +25,12 @@ public class GraphPane extends DrawArea{
     private Rectangle borderRectangle;
     private boolean verticalGridFlag = true;
     private boolean horizontalGridFlag = true;
+    
+    //spaces betwenn boundary of displayed area and component
+    private int spaceNorth = BORDER_SPACE;
+    private int spaceSouth = BORDER_SPACE;
+    private int spaceEast = BORDER_SPACE;
+    private int spaceWest = BORDER_SPACE;
    
     
     
@@ -96,7 +102,7 @@ public class GraphPane extends DrawArea{
      * @param gap space between lines in pixels
      * @param offset space between border and first grid line 
      */
-    private void paintVerticalGrid(Graphics g, int gap, int offset){
+    public void paintVerticalGrid(Graphics g, int gap, int offset){
         Color cOrig = g.getColor();
         g.setColor(Color.GRAY);
         
@@ -111,13 +117,15 @@ public class GraphPane extends DrawArea{
         g.setColor(cOrig);
     }
     
+    
+    
     /**
      * Paints horizontal grid lines
      * @param g
      * @param gap space between lines in pixels
      * @param offset space between border and first grid line 
      */
-    private void paintHorizontalGrid(Graphics g, int gap, int offset){
+    public void paintHorizontalGrid(Graphics g, int gap, int offset){
         Color cOrig = g.getColor();
         g.setColor(Color.GRAY);
         
@@ -132,7 +140,68 @@ public class GraphPane extends DrawArea{
         g.setColor(cOrig);
     }
     
-    
-    
-   
+    /**
+     * Returns currently displayed area
+     * @return 
+     */
+    public Rectangle getBorderRectangle() {
+        return borderRectangle;
+    }
+    /**
+     * Returns space between north boundary of component and visible area
+     * @return space in pixels
+     */
+    public int getSpaceNorth() {
+        return spaceNorth;
+    }
+    /**
+     * Sets space between north boundary of component and visible area
+     * @param spaceNorth - size of space in pixels 
+     */
+    public void setSpaceNorth(int spaceNorth) {
+        this.spaceNorth = spaceNorth;
+    }
+    /**
+     * Returns space between south boundary of component and visible area
+     * @return space in pixels
+     */
+    public int getSpaceSouth() {
+        return spaceSouth;
+    }
+    /**
+     * Sets space between south boundary of component and visible area
+     * @param spaceSouth - size of space in pixels 
+     */
+    public void setSpaceSouth(int spaceSouth) {
+        this.spaceSouth = spaceSouth;
+    }
+    /**
+     * Returns space between east boundary of component and visible area
+     * @return space in pixels
+     */
+    public int getSpaceEast() {
+        return spaceEast;
+    }
+    /**
+     * Sets space between east boundary of component and visible area
+     * @param spaceEast - size of space in pixels 
+     */
+    public void setSpaceEast(int spaceEast) {
+        this.spaceEast = spaceEast;
+    }
+    /**
+     * Returns space between west boundary of component and visible area
+     * @return space in pixels
+     */
+    public int getSpaceWest() {
+        return spaceWest;
+    }
+    /**
+     * Sets space between west boundary of component and visible area
+     * @param spaceWest - size of space in pixels 
+     */
+    public void setSpaceWest(int spaceWest) {
+        this.spaceWest = spaceWest;
+    }
+  
 }
