@@ -6,7 +6,9 @@
 
 package simplegraph.graphs;
 
+import simplegraph.base.Dataset;
 import simplegraph.base.Graph;
+import simplegraph.base.GraphSettings;
 
 /**
  * Builder for all possible graphs
@@ -14,8 +16,8 @@ import simplegraph.base.Graph;
  */
 public class GraphBuilder {
 
-    public static Graph createTestGraph(){
-        return TestGraph.create(null,null);
+    public static Graph createTestGraph(Dataset dataset, GraphSettings settings){
+        return TestGraph.create(dataset, settings);
     }
     
 }

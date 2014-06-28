@@ -6,8 +6,11 @@
 
 package simplegraph.graphs;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import simpledraw.drawable.Drawable;
+import simpledraw.drawable.Point;
 import simplegraph.base.Dataset;
 import simplegraph.base.Graph;
 import simplegraph.base.GraphSettings;
@@ -27,7 +30,17 @@ public class TestGraph extends Graph{
     }
     @Override
     public List<Drawable> getDataForDisplay() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Drawable> list = new ArrayList();
+        for(int i=0; i<getDataset().getDates().length; i++){
+            list.add(createDrawableFromDateAndValue(getDataset().getDates()[i], getDataset().getData()[i]));
+        }
+        return list;
     }
     
+    private Drawable createDrawableFromDateAndValue(Date date, double value){
+        int x = getPixelFromCoordinate(date);
+        int y = getPixelFromCoordinate(value);
+        return Point.createPointCrossMark(x, y);
+    }    
 }

@@ -187,4 +187,11 @@ public class Point implements Drawable{
     public static Point createPointPlusMark(int x, int y, int markSize){
         return new Point(x, y, MARK_PLUS, markSize);
     }
+
+    @Override
+    public String toString() {
+        return "Point{" + "x=" + x + ", y=" + y + ", mark=" + mark + ", markSize=" + markSize + '}';
+    }
+    
+    
 }

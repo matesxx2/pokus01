@@ -245,5 +245,5 @@ public class DrawArea implements ComponentListener, ChangeListener{
     public void stateChanged(ChangeEvent e) {
         visibleAreaMoved();
     }
-            
+    
 }

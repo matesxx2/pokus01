@@ -22,9 +22,10 @@ public abstract class Graph extends GraphBase{
      
     public Graph(Dataset dataset, GraphSettings settings){
         super();
-        setGraph(this);
+        
         this.dataset = dataset;
         this.settings = settings;
+        setGraph(this);
     }
     
     
@@ -49,5 +50,5 @@ public abstract class Graph extends GraphBase{
      * @return 
      */
     public abstract List<Drawable> getDataForDisplay();
-    
+
 }

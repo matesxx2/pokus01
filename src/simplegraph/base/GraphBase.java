@@ -18,7 +18,7 @@ import simpledraw.GraphPane;
  * 
  * @author Martin Kramar
  */
-public abstract class GraphBase extends GraphPane{
+public abstract class GraphBase extends GraphPane{ 
     
     /**reference to graph which contains {@link Dataset}*/
     private Graph graph;
@@ -26,7 +26,7 @@ public abstract class GraphBase extends GraphPane{
     protected GraphBase(){
         /*we need to set some initial size of drawing area
         correct values are when graph is set*/
-        super(1,2);
+        super(1000,1000);
         graph = null;
     }
     
@@ -56,6 +56,7 @@ public abstract class GraphBase extends GraphPane{
         int width = (int)Math.ceil((float)diff/numOfDisplayedUnit*graphAreaWidth);
         
         //add spaces betwenn boundaries of visible area and component
+        System.out.println("return of getRequiredWidth():" + (width + getSpaceEast() + getSpaceWest()));
         return width + getSpaceEast() + getSpaceWest();
     }
     
@@ -120,15 +121,14 @@ public abstract class GraphBase extends GraphPane{
         /* visible area was resized ->
          * whole drawing area is rescaled*/
         resizeDrawingArea(getRequiredWidth(), getDrawVisibleArea().height);
-        
+  
         //and points a rescaled also
         setListOfDrawables(graph.getDataForDisplay());  
     }
 
     @Override
     protected void visibleAreaMoved() {
-        super.visibleAreaMoved(); //To change body of generated methods, choose Tools | Templates.
-        System.out.println("FUNGUJE TO");
+        super.visibleAreaMoved();
     }
     
     
@@ -141,11 +141,11 @@ public abstract class GraphBase extends GraphPane{
     protected int getPixelFromCoordinate(Date date){
         int min = getSpaceEast();
         int max = getDrawAreaBounds().width - getSpaceWest();
-        long lengthTotal = diffDatesInMillis(graph.getDataset().getMaxDate(), graph.getDataset().getMinDate());
-        long lengthActual = diffDatesInMillis(graph.getDataset().getMaxDate(), date);
-        double rate = lengthActual/lengthTotal;
+        long lengthTotal = diffDatesInMillis(graph.getDataset().getMinDate(), graph.getDataset().getMaxDate());
+        long lengthActual = diffDatesInMillis(graph.getDataset().getMinDate(),date);
+        double rate = (double)lengthActual/lengthTotal;
         int position = (int)Math.round(rate*(max-min));
-        return max - position;
+        return min + position;
     }
     
     /**
@@ -162,7 +162,7 @@ public abstract class GraphBase extends GraphPane{
         int position = (int)Math.round(rate*(max-min));
         return max - position;
     }
-    
+
     
     
 }

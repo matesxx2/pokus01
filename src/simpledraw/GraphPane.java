@@ -62,7 +62,8 @@ public class GraphPane extends DrawArea{
      * @param height in pixels
      */
     public GraphPane(int width, int height){
-        super(width, height);   
+        super(width, height);
+        borderRectangle = createBorderRectangle();
     }
 
     public boolean isVerticalGridFlag() {
@@ -114,14 +115,23 @@ public class GraphPane extends DrawArea{
         Color cOrig = g.getColor();
         
         g.setColor(cBorder);
-        g.fillRect(r.x, r.y, r2.width, BORDER_SPACE);
-        g.fillRect(r.x, r2.height-BORDER_SPACE, r2.width, BORDER_SPACE+2);
-        g.fillRect(r.x, r.y, BORDER_SPACE, r2.height);
-        g.fillRect(r2.width-BORDER_SPACE, r.y, BORDER_SPACE+2, r2.height);
+        g.fillRect(r.x, r.y, r2.width, spaceNorth);
+        g.fillRect(r.x, r2.height-spaceSouth, r2.width, spaceEast+2);
+        g.fillRect(r.x, r.y, spaceWest, r2.height);
+        g.fillRect(r2.width-spaceEast, r.y, spaceEast+2, r2.height);
         
         g.setColor(cOrig);
-        borderRectangle = new Rectangle(r.x+BORDER_SPACE, r.y+BORDER_SPACE, r2.width-2*BORDER_SPACE, r2.height-2*BORDER_SPACE);
+        //borderRectangle = new Rectangle(r.x+BORDER_SPACE, r.y+BORDER_SPACE, r2.width-2*BORDER_SPACE, r2.height-2*BORDER_SPACE);
+        borderRectangle = createBorderRectangle();
         g.drawRect(borderRectangle.x, borderRectangle.y, borderRectangle.width, borderRectangle.height);
+    }
+    
+    private Rectangle createBorderRectangle(){
+        return new Rectangle(
+                getScrollVisibleArea().x + spaceWest, 
+                getScrollVisibleArea().y + spaceNorth, 
+                getDrawVisibleArea().width - spaceWest - spaceEast, 
+                getDrawVisibleArea().height - spaceNorth - spaceSouth);
     }
     
     /**
@@ -374,7 +384,5 @@ public class GraphPane extends DrawArea{
     public void setHorizontalLabelsFlag(boolean horizontalLabelsFlag) {
         this.horizontalLabelsFlag = horizontalLabelsFlag;
     }
-    
-    
     
 }
