@@ -139,8 +139,6 @@ public class GraphPane extends DrawArea{
         for(int i=0; (x = borderRectangle.x + verticalGridOffset + i*verticalGridGap)<lastX ;i++){
             if(x>borderRectangle.x)
                 g.drawLine(x, borderRectangle.y, x, borderRectangle.y+borderRectangle.height);
-            
-            x = borderRectangle.x + offset + i*gap;
         }
         
         g.setColor(cOrig);
