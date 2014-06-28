@@ -10,14 +10,16 @@ import java.util.List;
 import simpledraw.drawable.Drawable;
 
 /**
- * Stores and implements all common variables and methods for all graphs
- * @author petr
+ * Implements based functionality which is same for all types of graphs.
+ * It is storing of {@link Dataset} and {@link GraphSettings}
+ * 
+ * @author Martin Kramar
  */
 public abstract class Graph extends GraphBase{
     
     private Dataset dataset;
     private GraphSettings settings;
-    
+     
     public Graph(Dataset dataset, GraphSettings settings){
         super();
         setGraph(this);
@@ -43,7 +45,7 @@ public abstract class Graph extends GraphBase{
     }
     
     /**
-     * Converts data from dataset to {@link Drawable} object
+     * Converts data from dataset to list of {@link Drawable} objects
      * @return 
      */
     public abstract List<Drawable> getDataForDisplay();
