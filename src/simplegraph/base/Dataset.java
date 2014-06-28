@@ -84,11 +84,5 @@ public class Dataset {
                 maxValue = data[i];
         }
     }
-    
-    private Calendar convertDateToCalendar(Date date){
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        return c;
-    }
    
 }
