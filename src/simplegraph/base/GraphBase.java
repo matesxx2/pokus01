@@ -11,28 +11,39 @@ import java.util.Date;
 import simpledraw.GraphPane;
 
 /**
- * Paints grid, and grid's labels
- * @author Martin
+ * This is a base graph class. It is responsible for
+ * computing drawingArea size and their resizing after
+ * graphPane's size is changed. This class is also responsible for
+ * correct settings of grid and grid labels in graphPane.
+ * 
+ * @author Martin Kramar
  */
 public abstract class GraphBase extends GraphPane{
     
+    /**reference to graph which contains {@link Dataset}*/
     private Graph graph;
-    
+     
     protected GraphBase(){
+        /*we need to set some initial size of drawing area
+        correct values are when graph is set*/
         super(1,2);
         graph = null;
     }
-
+    
     protected void setGraph(Graph graph) {
         this.graph = graph;
+        drawAreaResized();//is called to set correct size of drawingArea
     }
       
     
     /**
-     * Computes width for displaying all data from dataset
-     * @return width in pixels
+     * Computes required width for displaying all data from dataset
+     * @return width in pixels<br>-1 if graph is null
      */
     private int getRequiredWidth(){
+        if(graph == null)
+            return -1;
+        
         //num of total units
         int diff = diffDates(graph.getDataset().getMinDate(), graph.getDataset().getMaxDate(), graph.getSettings().getTimeLevel());
         //size of currently visible area
@@ -113,6 +124,14 @@ public abstract class GraphBase extends GraphPane{
         //and points a rescaled also
         setListOfDrawables(graph.getDataForDisplay());  
     }
+
+    @Override
+    protected void visibleAreaMoved() {
+        super.visibleAreaMoved(); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("FUNGUJE TO");
+    }
+    
+    
     
     /**
      * Returns x- coordinate position for input date.
