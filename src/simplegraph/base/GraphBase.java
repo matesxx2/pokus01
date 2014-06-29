@@ -6,6 +6,7 @@
 
 package simplegraph.base;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import simpledraw.GraphPane;
@@ -19,6 +20,9 @@ import simpledraw.GraphPane;
  * @author Martin Kramar
  */
 public abstract class GraphBase extends GraphPane{ 
+    
+    private static final int FORMAT_DATE_FULL = 1;
+    private static final int FORMAT_DATE_ONLYTIME = 2;
     
     /**reference to graph which contains {@link Dataset}*/
     private Graph graph;
@@ -94,6 +98,44 @@ public abstract class GraphBase extends GraphPane{
         return calendar;
     }
     
+    /**
+     * In input calendar sets to 0 all fields in array calendarUnits.
+     * @param calendar
+     * @param calendarUnits array of {@link Calendar#SECOND}, {@link Calendar#MINUTE}, ...
+     */
+    private void setToZeroFollowingCalendarUnits(Calendar calendar, int calendarUnits[]){
+        for (int field : calendarUnits) {
+            calendar.set(field, 0);
+        }
+    }
+    
+    /**
+     * Returns array of calendar fiels which are lower than timelevel.<br><br>
+     * <b>Example:<b/><br>
+     * If timeLevel is {@link TimeLevel#HOUR} then following array is returned:
+     * {@link Calendar#MILLISECOND}, {@link Calendar#SECOND}, {@link Calendar#MINUTE} 
+     * @param timeLevel
+     * @return 
+     */
+    private int[] getCalendarUnits(TimeLevel timeLevel){
+        switch(timeLevel){
+            case SECOND:
+                return new int[]{Calendar.MILLISECOND};
+            case MINUTE:
+                return new int[]{Calendar.MILLISECOND, Calendar.SECOND};
+            case HOUR:
+                return new int[]{Calendar.MILLISECOND, Calendar.SECOND, Calendar.MINUTE};
+            case DAY:
+                return new int[]{Calendar.MILLISECOND, Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY};
+            case WEEK:
+                return new int[]{Calendar.MILLISECOND, Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY, Calendar.DAY_OF_WEEK};
+            case MONTH:
+                return new int[]{Calendar.MILLISECOND, Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY, Calendar.DAY_OF_WEEK, Calendar.WEEK_OF_MONTH};
+            default:
+                return new int[0];
+        }
+    }
+    
     private int convertTimeLevelToCalendar(TimeLevel timeLevel){
         switch(timeLevel){
             case SECOND:
@@ -123,12 +165,107 @@ public abstract class GraphBase extends GraphPane{
         resizeDrawingArea(getRequiredWidth(), getDrawVisibleArea().height);
   
         //and points a rescaled also
-        setListOfDrawables(graph.getDataForDisplay());  
+        setListOfDrawables(graph.getDataForDisplay());
+        
+        
+        setVerticalGridGap(computeVerticalGridGap());
+    }
+    
+    /**
+     * Computes required grid gap in pixels.
+     * @return 
+     */
+    private int computeVerticalGridGap(){
+        Date d1 = new Date(System.currentTimeMillis());
+        Date d2 = getFirstNextDate(d1, graph.getSettings().getTimeLevel());
+        Date d3 = getFirstNextDate(d2, graph.getSettings().getTimeLevel());
+        
+        return getPixelFromCoordinate(d3)-getPixelFromCoordinate(d2);
     }
 
     @Override
     protected void visibleAreaMoved() {
         super.visibleAreaMoved();
+        /*
+        System.out.println("getBorderRectangle:" + getBorderRectangle());
+        System.out.println("getDrawAreaBounds:" + getDrawAreaBounds());
+        System.out.println("getDrawVisibleArea:" + getDrawVisibleArea());
+        System.out.println("getScrollVisibleArea:" + getScrollVisibleArea());
+        System.out.println("getXcoordinateWestBoundaryAtDrawArea:" + getXcoordinateWestBoundaryAtDrawArea());
+        System.out.println("getPixelFromCoordinate(getDateFromPixel(150)):" + getPixelFromCoordinate(getDateFromPixel(150)));
+        */
+        /*Date at west boundary of visible area
+        it means first displayed date*/
+        Date dateAtWestBorder = getDateFromPixel(getXcoordinateWestBoundaryAtDrawArea());
+        
+        /*
+        Remove one millisecond...
+        If dateAtWestBorder will be 2014-02-22 11:22:00 and timelevel is minute then
+        calling of getFirstNextDate() returns 2014-02-22 11:23:00 but we want to start
+        at 2014-02-22 11:22:00 in such case
+        */
+        dateAtWestBorder.setTime(dateAtWestBorder.getTime()-1);
+
+        /*
+        If dateAtWestBorder will be 2014-02-22 11:22:34 and
+        a) timelevel is a MINUTE then first date inside border is 2014-02-22 11:23:00
+        b) timelevel is a HOUR   then first date inside border is 2014-02-22 12:00:00
+        and so on...
+        */
+        Date dateInsideBorder = getFirstNextDate(dateAtWestBorder, graph.getSettings().getTimeLevel());
+        
+        int offset = getDistanceFromWestBoundary(getPixelFromCoordinate(dateInsideBorder));
+        
+        //Create all displayed labels
+        String labels[] = new String[graph.getSettings().getNumOfDislplayedUnits()];
+        for (int i=0; i<labels.length; i++) {
+            if(i==0)
+                labels[i] = formatDate(dateInsideBorder, FORMAT_DATE_FULL);
+            else
+                labels[i] = formatDate(dateInsideBorder, FORMAT_DATE_ONLYTIME);
+            
+            dateInsideBorder = getFirstNextDate(dateInsideBorder, graph.getSettings().getTimeLevel());
+        }
+        
+        setVerticalGridOffset(offset);
+        setVerticalLabels(labels);
+    }
+    
+    /**
+     * Returns first next date after input date.<br><br>
+     * <b>Example:</b><br>
+     * If date will be 2014-02-22 11:22:34 and<br>
+     * a) timelevel is a {@link TimeLevel#MINUTE} then next date will be 2014-02-22 11:23:00<br>
+     * b) timelevel is a {@link TimeLevel#HOUR} then next date will be 2014-02-22 12:00:00<br>
+     * and so on...
+     * @param date
+     * @param timelevel
+     * @return Warning: returns 2014-02-22 11:23:00 if input date 2014-02-22 11:22:00
+     * and timelevel is minute
+     */
+    private Date getFirstNextDate(Date date, TimeLevel timeLevel){
+        Calendar cDate = createCalendarFromDate(date);
+        setToZeroFollowingCalendarUnits(cDate, getCalendarUnits(timeLevel));
+        cDate.add(convertTimeLevelToCalendar(timeLevel), 1);
+        return cDate.getTime();
+    }
+    
+    /**
+     * Returns string representing input date
+     * @param date
+     * @param format {@link GraphBase#FORMAT_DATE_ONLYTIME} or {@link GraphBase#FORMAT_DATE_FULL}
+     * @return 
+     * if format {@link GraphBase#FORMAT_DATE_ONLYTIME} returns hh:mm:ss <br>
+     * if format {@link GraphBase#FORMAT_DATE_FULL} returns hh:mm:ss yyyy-mm-dd <br>
+     * if other format return null
+     */
+    private String formatDate(Date date, int format){
+        if(FORMAT_DATE_FULL == format)
+            return new SimpleDateFormat("HH:mm:ss").format(date) + "\n" + new SimpleDateFormat("yyyy-MM-dd").format(date);
+        else if(FORMAT_DATE_ONLYTIME == format)
+            return new SimpleDateFormat("HH:mm:ss").format(date);
+        else
+            return null;
     }
     
     
@@ -149,6 +286,22 @@ public abstract class GraphBase extends GraphPane{
     }
     
     /**
+     * Returns {@link Date} which is corresponds with
+     * pixel at draw area.<br>
+     * See inverse method {@link GraphBase#getPixelFromCoordinate(java.util.Date)}
+     * @param pixel x-coordinate at draw area
+     * @return 
+     */
+    protected Date getDateFromPixel(int pixel){
+        int min = getSpaceEast();
+        int max = getDrawAreaBounds().width - getSpaceWest();
+        double ratio = (double)(pixel-min)/(max-min);
+        
+        long lengthTotal = diffDatesInMillis(graph.getDataset().getMinDate(), graph.getDataset().getMaxDate());
+        return new Date(graph.getDataset().getMinDate().getTime()+Math.round(ratio*lengthTotal));
+    }
+    
+    /**
      * Returns y- coordinate position for input value
      * @param value point at y-coordinate (y in double)
      * @return x coordinate in pixels
@@ -161,6 +314,29 @@ public abstract class GraphBase extends GraphPane{
         double rate = lengthActual/lengthTotal;
         int position = (int)Math.round(rate*(max-min));
         return max - position;
+    }
+    
+    /**
+     * Returns number of pixels between position and west boundary
+     * of border rectangle measured in drawArea coordination system.
+     * <br>
+     * Border rectangle is transformed into drawArea coordinate system
+     * and difference between x-coordinates of position and west boundary
+     * is returned
+     * @param position x-coordinate at drawArea in pixels 
+     * @return if result > 0 then position is on the right side of west boundary<br>
+     * if result < 0 then position is on the left side of west boundary <br>
+     * if result == 0 then position is on the west boundary
+     */
+    protected int getDistanceFromWestBoundary(int position){
+        return position-getXcoordinateWestBoundaryAtDrawArea();
+    }
+    
+    /**
+     * @return x-coordinate of west boundary of border rectangle at drawArea (in pixels)
+     */
+    protected int getXcoordinateWestBoundaryAtDrawArea(){
+        return getDrawVisibleArea().x + getSpaceWest();
     }
 
     
