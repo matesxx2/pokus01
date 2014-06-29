@@ -9,6 +9,7 @@ package simpledraw;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.util.StringTokenizer;
 import simpledraw.drawable.DrawArea;
 
 /**
@@ -20,9 +21,10 @@ import simpledraw.drawable.DrawArea;
  */
 public class GraphPane extends DrawArea{
     
-    private final int BORDER_SPACE = 30;
+    private final int BORDER_SPACE = 40;
     private final int GRID_SIZE_DEFAULT = 70;
     private final int GRID_OFFSET_DEFAULT = 20;
+    private final int HORIZONTAL_LABELS_OFFSET_PER_CHAR = 8;
     
     /**
      * It is a bordered area inside scrollPane.
@@ -37,10 +39,10 @@ public class GraphPane extends DrawArea{
     private boolean horizontalLabelsFlag = true;
     
     //spaces betwenn boundary of displayed area and component
-    private int spaceNorth = BORDER_SPACE;
-    private int spaceSouth = BORDER_SPACE;
-    private int spaceEast = BORDER_SPACE;
-    private int spaceWest = BORDER_SPACE;
+    private int spaceNorth = 2*BORDER_SPACE;
+    private int spaceSouth = 2*BORDER_SPACE;
+    private int spaceEast = 2*BORDER_SPACE;
+    private int spaceWest = 2*BORDER_SPACE;
     
     //*pixels between grid lines*/
     private int horizontalGridGap = GRID_SIZE_DEFAULT;
@@ -195,8 +197,14 @@ public class GraphPane extends DrawArea{
         int y;
         for(int i=0; (y = borderRectangle.y + horizontalGridOffset + i*horizontalGridGap)<lastY ;i++){   
             if(y>borderRectangle.y && horizontalLabels != null && i < horizontalLabels.length)
-                g.drawString(horizontalLabels[i], borderRectangle.x-offset, y);
+                paintHorizontalLabel(g, borderRectangle.x, y, horizontalLabels[i]);
+                //g.drawString(horizontalLabels[i], borderRectangle.x-offset, y);
         }
+    }
+    
+    private void paintHorizontalLabel(Graphics g, int x, int y, String label){
+        int offset = HORIZONTAL_LABELS_OFFSET_PER_CHAR*label.length();
+        g.drawString(label, x-offset, y);
     }
     
     private void paintVerticalLabels(Graphics g){
@@ -205,7 +213,25 @@ public class GraphPane extends DrawArea{
         int x;
         for(int i=0; (x = borderRectangle.x + verticalGridOffset + i*verticalGridGap)<lastX ;i++){
             if(x>borderRectangle.x && verticalLabels != null && i < verticalLabels.length)
-                g.drawString(verticalLabels[i], x, borderRectangle.y+borderRectangle.height + offset);
+                paintVerticalLabel(g, x, borderRectangle.y+borderRectangle.height + offset, parseLabel(verticalLabels[i]));
+                //g.drawString(verticalLabels[i], x, borderRectangle.y+borderRectangle.height + offset);
+        }
+    }
+    
+    private String[] parseLabel(String label){
+        StringTokenizer tokenizer = new StringTokenizer(label, "\n");
+        String parsedLabels[] = new String[tokenizer.countTokens()];
+        for(int i=0; tokenizer.hasMoreTokens(); i++)
+            parsedLabels[i] = tokenizer.nextToken();
+            
+        return parsedLabels;
+    }
+    
+    private void paintVerticalLabel(Graphics g, int x, int y, String labels[]){
+        int offset = g.getFont().getSize();
+        for (String string : labels) {
+            g.drawString(string, x, y);
+            y+=offset;
         }
     }
     
