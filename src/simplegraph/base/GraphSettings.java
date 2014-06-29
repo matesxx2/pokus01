@@ -15,7 +15,7 @@ public class GraphSettings {
      
     private static final int NUM_DISP_TIMES_DEFAULT = 10;
     private static final int NUM_DISP_VALUES_DEFAULT = 5;
-    private static final int OFFSET_DEFAULT = 20;
+    private static final int OFFSET_DEFAULT = 30;
     private static final int GAP_DEFAULT = 80;
     
     private TimeLevel timeLevel = TimeLevel.DAY;
