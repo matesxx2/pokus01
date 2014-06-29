@@ -9,6 +9,7 @@ package pokusgithub;
 import java.awt.BorderLayout;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.StringTokenizer;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -52,6 +53,13 @@ public class Main {
     
     public static void test2(){
         System.out.println((float)5/3*6);
+        String a = "nazdar\nvole\nvole";
+        
+       
+        StringTokenizer st = new StringTokenizer(a, "\n");
+        System.out.println("num tokens:" + st.countTokens());
+        while(st.hasMoreTokens())
+            System.out.println("st:" + st.nextToken());
     }
     
     public static void test3(){
