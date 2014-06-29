@@ -64,7 +64,7 @@ public abstract class GraphBase extends GraphPane{
         int gridGap = (getBorderRectangle().height-2*getHorizontalGridOffset())/(graph.getSettings().getNumOfDisplayedValues()-1);
         setHorizontalGridGap(gridGap);//newly computed grid gap
         for(int i=0; i<labels.length; i++){
-            labels[i] = String.valueOf(getValueFromPixel(pixel));
+            labels[i] = String.valueOf(getValueFromPixel(pixel)).substring(0, 6);
             pixel += getHorizontalGridGap();
         }
         setHorizontalLabels(labels);
@@ -240,7 +240,7 @@ public abstract class GraphBase extends GraphPane{
         System.out.println("getXcoordinateWestBoundaryAtDrawArea:" + getXcoordinateWestBoundaryAtDrawArea());
         System.out.println("getPixelFromCoordinate(getDateFromPixel(150)):" + getPixelFromCoordinate(getDateFromPixel(150)));
         System.out.println("getPixelFromCoordinate(getValueFromPixel(200)):" + getPixelFromCoordinate(getValueFromPixel(200)));
-        */
+        //*/
           
         /*Date at west boundary of visible area
         it means first displayed date*/
@@ -270,7 +270,7 @@ public abstract class GraphBase extends GraphPane{
             if(i==0)
                 labels[i] = formatDate(dateInsideBorder, FORMAT_DATE_FULL);
             else
-                labels[i] = formatDate(dateInsideBorder, FORMAT_DATE_ONLYTIME);
+                labels[i] = formatDate(dateInsideBorder, FORMAT_DATE_FULL);
             
             dateInsideBorder = getFirstNextDate(dateInsideBorder, graph.getSettings().getTimeLevel());
         }
@@ -361,7 +361,8 @@ public abstract class GraphBase extends GraphPane{
         double lengthActual = graph.getDataset().getMaxValue()-value;
         double rate = lengthActual/lengthTotal;
         int position = (int)Math.round(rate*(max-min));
-        return min + position;
+        //return max-position //small values are on top
+        return min + position;//now small values are at bottom
     }
     
     /**
@@ -375,7 +376,8 @@ public abstract class GraphBase extends GraphPane{
         int max = getDrawAreaBounds().height - getSpaceSouth();
         double ratio = (double)(pixel-min)/(max-min);
         double lengthTotal = graph.getDataset().getMaxValue()-graph.getDataset().getMinValue();
-        return graph.getDataset().getMaxValue() - ratio*lengthTotal;
+        //return graph.getDataset().getMinValue() + ratio*lengthTotal;//small values are displayed on top
+        return graph.getDataset().getMaxValue() - ratio*lengthTotal;//small values are at bottom
     }
     
     /**
