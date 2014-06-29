@@ -36,9 +36,50 @@ public abstract class GraphBase extends GraphPane{
     
     protected void setGraph(Graph graph) {
         this.graph = graph;
+        setHorizontalGridSettings();
         drawAreaResized();//is called to set correct size of drawingArea
     }
-      
+    
+    /**
+     * Sets gap and offset according {@link GraphSettings#horizontalGridGap}
+     * and {@link GraphSettings#horizontalGridOffset} and sets labels for 
+     * horizontal grid lines
+     */
+    protected void setHorizontalGridSettings(){
+        setHorizontalGridGap(graph.getSettings().getHorizontalGridGap());
+        setHorizontalGridOffset(graph.getSettings().getHorizontalGridOffset());
+        
+        /*//used from constant space between grid lines
+        String labels[] = new String[countNumberOfHorizontalGridLines()];
+        int pixel = getSpaceNorth() + getHorizontalGridOffset();
+        for(int i=0; i<labels.length; i++){
+            labels[i] = String.valueOf(getValueFromPixel(pixel));
+            pixel += getHorizontalGridGap();
+        }
+        */
+        
+        //used for constant count of grid lines
+        String labels[] = new String[graph.getSettings().getNumOfDisplayedValues()];
+        int pixel = getSpaceNorth() + getHorizontalGridOffset();
+        int gridGap = (getBorderRectangle().height-2*getHorizontalGridOffset())/(graph.getSettings().getNumOfDisplayedValues()-1);
+        setHorizontalGridGap(gridGap);//newly computed grid gap
+        for(int i=0; i<labels.length; i++){
+            labels[i] = String.valueOf(getValueFromPixel(pixel));
+            pixel += getHorizontalGridGap();
+        }
+        setHorizontalLabels(labels);
+    }
+    
+    private int countNumberOfHorizontalGridLines(){
+        int count = 0;
+        int pixel = getSpaceNorth() + getHorizontalGridOffset();
+        while(pixel < getBorderRectangle().y+getBorderRectangle().height){
+            count++;
+            pixel += getHorizontalGridGap();
+        }
+        return count;
+    }
+    
     
     /**
      * Computes required width for displaying all data from dataset
@@ -167,8 +208,13 @@ public abstract class GraphBase extends GraphPane{
         //and points a rescaled also
         setListOfDrawables(graph.getDataForDisplay());
         
-        
+        /*new grid gap needs to be computed to have 
+        same number of vertical grid lines when
+        size of visible area is changed*/
         setVerticalGridGap(computeVerticalGridGap());
+        
+        //sets new labels
+        setHorizontalGridSettings();
     }
     
     /**
@@ -193,7 +239,9 @@ public abstract class GraphBase extends GraphPane{
         System.out.println("getScrollVisibleArea:" + getScrollVisibleArea());
         System.out.println("getXcoordinateWestBoundaryAtDrawArea:" + getXcoordinateWestBoundaryAtDrawArea());
         System.out.println("getPixelFromCoordinate(getDateFromPixel(150)):" + getPixelFromCoordinate(getDateFromPixel(150)));
+        System.out.println("getPixelFromCoordinate(getValueFromPixel(200)):" + getPixelFromCoordinate(getValueFromPixel(200)));
         */
+          
         /*Date at west boundary of visible area
         it means first displayed date*/
         Date dateAtWestBorder = getDateFromPixel(getXcoordinateWestBoundaryAtDrawArea());
@@ -313,7 +361,21 @@ public abstract class GraphBase extends GraphPane{
         double lengthActual = graph.getDataset().getMaxValue()-value;
         double rate = lengthActual/lengthTotal;
         int position = (int)Math.round(rate*(max-min));
-        return max - position;
+        return min + position;
+    }
+    
+    /**
+     * Return value which corresponds with input y-pixel.
+     * See inverse method {@link GraphBase#getPixelFromCoordinate(java.lang.Double) }
+     * @param pixel at y-axis of drawing area
+     * @return 
+     */
+    protected double getValueFromPixel(int pixel){
+        int min = getSpaceNorth();
+        int max = getDrawAreaBounds().height - getSpaceSouth();
+        double ratio = (double)(pixel-min)/(max-min);
+        double lengthTotal = graph.getDataset().getMaxValue()-graph.getDataset().getMinValue();
+        return graph.getDataset().getMaxValue() - ratio*lengthTotal;
     }
     
     /**
