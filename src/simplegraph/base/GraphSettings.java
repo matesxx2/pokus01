@@ -14,11 +14,13 @@ package simplegraph.base;
 public class GraphSettings {
      
     private static final int NUM_DISP_TIMES_DEFAULT = 10;
+    private static final int NUM_DISP_VALUES_DEFAULT = 5;
     private static final int OFFSET_DEFAULT = 20;
     private static final int GAP_DEFAULT = 80;
     
     private TimeLevel timeLevel = TimeLevel.DAY;
     private int numOfDislplayedUnits = NUM_DISP_TIMES_DEFAULT;
+    private int numOfDisplayedValues = NUM_DISP_VALUES_DEFAULT;
     
     private int horizontalGridOffset = OFFSET_DEFAULT;
     private int horizontalGridGap = GAP_DEFAULT;
@@ -86,6 +88,21 @@ public class GraphSettings {
      */
     public void setHorizontalGridGap(int horizontalGridGap) {
         this.horizontalGridGap = horizontalGridGap;
+    }
+    
+    /**
+     * 
+     * @return count of horizontal grid lines
+     */
+    public int getNumOfDisplayedValues() {
+        return numOfDisplayedValues;
+    }
+    /**
+     * Sets count of displayed horizontal grid lines
+     * @param numOfDisplayedValues count of horizontal grid lines
+     */
+    public void setNumOfDisplayedValues(int numOfDisplayedValues) {
+        this.numOfDisplayedValues = numOfDisplayedValues;
     }
 
    
