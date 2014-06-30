@@ -64,7 +64,11 @@ public class Main {
     
     public static void test3(){
         Date start = new Date(System.currentTimeMillis() - 10*60*1000);//-10min
+        //Date start = new Date(System.currentTimeMillis() - 24*24*60*60*1000);//funguje 
+        //Date start = new Date(System.currentTimeMillis() - 25*24*60*60*1000);//uz ne
+        System.out.println("start:" + start);
         Date end = new Date(System.currentTimeMillis());
+        System.out.println("end:" + end);
         Date step = new Date(30000);
         Date[] dates = createDates(start, end, step);
         System.out.println("Dates:" + dates.length);
@@ -92,6 +96,20 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         
+        //fix of bad initial displaying :-)
+        frame.setSize(450, 450);
+        frame.setVisible(true);
+        frame.setSize(500, 500);
+        
+        System.out.println("min" + g.getDrawingArea().getVerticalScrollBar().getMinimum());
+        System.out.println("val" + g.getDrawingArea().getVerticalScrollBar().getValue());
+        System.out.println("max" + g.getDrawingArea().getVerticalScrollBar().getMaximum());
+        g.getDrawingArea().getVerticalScrollBar().setValue(g.getDrawingArea().getVerticalScrollBar().getMaximum());
+        g.getDrawingArea().getHorizontalScrollBar().setValue(g.getDrawingArea().getHorizontalScrollBar().getMaximum());
+        System.out.println("min" + g.getDrawingArea().getVerticalScrollBar().getMinimum());
+        System.out.println("val" + g.getDrawingArea().getVerticalScrollBar().getValue());
+        System.out.println("max" + g.getDrawingArea().getVerticalScrollBar().getMaximum());
+        frame.setVisible(true);
         //g.resizeDrawingArea(1000, 1000);
     }
     
