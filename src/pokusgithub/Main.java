@@ -7,9 +7,12 @@
 package pokusgithub;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,6 +23,10 @@ import simplegraph.base.Dataset;
 import simplegraph.base.Graph;
 import simplegraph.base.GraphSettings;
 import simplegraph.base.TimeLevel;
+import simplegraph.data.GraphData;
+import simplegraph.data.GraphDataCreator;
+import simplegraph.data.exceptions.DifferentSizeException;
+import simplegraph.data.exceptions.LineParsedException;
 import simplegraph.graphs.GraphBuilder;
 
 /**
@@ -30,7 +37,8 @@ public class Main {
     public static void main(String[] args){
         //test1();
         //test2();
-        test3();
+        //test3();
+        test4();
     }
     
     public static void test1(){
@@ -113,6 +121,21 @@ public class Main {
         frame.setVisible(true);
         //g.resizeDrawingArea(1000, 1000);
         //*/
+    }
+    
+    public static void test4(){
+        try {
+            GraphData graphData = GraphDataCreator.readCsvFile("data/data01.csv", true);
+            System.out.println(graphData.getDates()[0]);
+            System.out.println(graphData.getDates()[1]);
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DifferentSizeException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (LineParsedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
     public static Date[] createDates(Date start, Date end, Date stepSize){
