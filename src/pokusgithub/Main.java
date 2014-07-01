@@ -65,10 +65,11 @@ public class Main {
     public static void test3(){
         Date start = new Date(System.currentTimeMillis() - 10*60*1000);//-10min
         //Date start = new Date(System.currentTimeMillis() - 24*24*60*60*1000);//funguje 
-        //Date start = new Date(System.currentTimeMillis() - 25*24*60*60*1000);//uz ne
+        //Date start = new Date(System.currentTimeMillis() - (long)25*24*60*60*1000);//uz ne
         System.out.println("start:" + start);
         Date end = new Date(System.currentTimeMillis());
         System.out.println("end:" + end);
+        //*
         Date step = new Date(30000);
         Date[] dates = createDates(start, end, step);
         System.out.println("Dates:" + dates.length);
@@ -111,6 +112,7 @@ public class Main {
         System.out.println("max" + g.getDrawingArea().getVerticalScrollBar().getMaximum());
         frame.setVisible(true);
         //g.resizeDrawingArea(1000, 1000);
+        //*/
     }
     
     public static Date[] createDates(Date start, Date end, Date stepSize){
