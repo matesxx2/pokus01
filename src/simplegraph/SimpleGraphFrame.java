@@ -9,6 +9,7 @@ package simplegraph;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -18,10 +19,16 @@ import java.io.OutputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import simplegraph.data.GraphData;
+import simplegraph.data.GraphDataCreator;
+import simplegraph.data.exceptions.DifferentSizeException;
+import simplegraph.data.exceptions.LineParsedException;
 
 /**
  * 
@@ -35,6 +42,7 @@ public class SimpleGraphFrame extends JFrame{
     private static final int FRAME_HEIGHT = 150;
     private static final int FRAME_POSITION_X = 30;
     private static final int FRAME_POSITION_Y = 30;
+    private static final String FILE_CHOOSER_DEFAULT_PATH = "./";
     
     //For customized settings of the frame
     private static final String PROPERTY_FILENAME = "config.properties";
@@ -42,11 +50,17 @@ public class SimpleGraphFrame extends JFrame{
     private static final String PROPERTY_FRAME_HEIGHT = "WINDOW_SIZE_HEIGHT";
     private static final String PROPERTY_FRAME_POSITION_X = "WINDOW_POSITION_X";
     private static final String PROPERTY_FRAME_POSITION_Y = "WINDOW_POSITION_Y";
+    private static final String PROPERTY_PATH_READ_CSV_FILE = "PATH_READ_CSV_FILE";
     
     //Labels for menu
     private static final String MENU_FILE = "File";
+    private static final String MENU_DATA = "Data";
     
-    private static final String MENU_ITEM_CLOSE = "Close";
+    private static final String MENU_ITEM_DATA_READ_CSV = "Read csv...";
+    private static final String MENU_ITEM_FILE_CLOSE = "Close";
+    
+    private Properties properties;
+    private GraphData graphData;
     
     public SimpleGraphFrame(){
         super(FRAME_TITLE);
@@ -60,12 +74,10 @@ public class SimpleGraphFrame extends JFrame{
     }
     
     private void init(){
-        Properties properties = loadProperties();
+        properties = loadProperties();
+        graphData = null;
         
-        if(properties == null)
-            initDefault();
-        else
-            init(properties);
+        init(properties);
         
         //init independent on properties
         setJMenuBar(createJMenuBar());
@@ -95,7 +107,7 @@ public class SimpleGraphFrame extends JFrame{
     private Properties loadProperties(){
         InputStream inputStream = null;
         try {
-            Properties properties = new Properties();
+            properties = new Properties();
             inputStream = new FileInputStream(PROPERTY_FILENAME);
             properties.load(inputStream);
             return properties;
@@ -111,14 +123,15 @@ public class SimpleGraphFrame extends JFrame{
                 Logger.getLogger(SimpleGraphFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return null;
+        return new Properties();
     }
     
     /**
      * Save current settings to property file.
      */
     private void saveProperty(){
-        Properties properties = new Properties();
+        if(properties == null)
+            properties = new Properties();
         
         properties.setProperty(PROPERTY_FRAME_WIDTH, String.valueOf(getSize().width));
         properties.setProperty(PROPERTY_FRAME_HEIGHT, String.valueOf(getSize().height));
@@ -147,24 +160,60 @@ public class SimpleGraphFrame extends JFrame{
         System.exit(exitCode);
     }
     
+    private void readCsvFile(){
+        
+        JFileChooser fileChooser = new JFileChooser(properties.getProperty(PROPERTY_PATH_READ_CSV_FILE, FILE_CHOOSER_DEFAULT_PATH));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
+        int retVal = fileChooser.showOpenDialog(this);
+        
+        File f = fileChooser.getSelectedFile();
+        if(f != null){
+            properties.setProperty(PROPERTY_PATH_READ_CSV_FILE, f.getParent());
+            try {
+                graphData = GraphDataCreator.readCsvFile(f, true);
+            } catch (IOException | DifferentSizeException | LineParsedException ex) {
+                Logger.getLogger(SimpleGraphFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        
+        
+    }
+    
+
+    
     /**
      * All menu click event are routed here...
      * @param actionEvent 
      */
     private void actionClickOnMenu(ActionEvent actionEvent){
-        if(MENU_ITEM_CLOSE.equals(actionEvent.getActionCommand()))
-            closeProgram(0);
+        if(null != actionEvent.getActionCommand())
+            switch (actionEvent.getActionCommand()) {
+            case MENU_ITEM_FILE_CLOSE:
+                closeProgram(0);
+                break;
+            case MENU_ITEM_DATA_READ_CSV:
+                readCsvFile();
+                break;
+        }
     }
     
     private JMenuBar createJMenuBar(){
         JMenuBar jMenuBar = new JMenuBar();
         jMenuBar.add(createFileMenu());
+        jMenuBar.add(createDataMenu());
         return jMenuBar;
     }
     
     private JMenu createFileMenu(){
         JMenu menu = new JMenu(MENU_FILE);
-        menu.add(createJMenuItem(MENU_ITEM_CLOSE));
+        menu.add(createJMenuItem(MENU_ITEM_FILE_CLOSE));
+        return menu;
+    }
+    
+    private JMenu createDataMenu(){
+        JMenu menu = new JMenu(MENU_DATA);
+        menu.add(createJMenuItem(MENU_ITEM_DATA_READ_CSV));
         return menu;
     }
     /**
