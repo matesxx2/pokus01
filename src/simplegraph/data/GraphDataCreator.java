@@ -11,8 +11,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import simplegraph.data.exceptions.DifferentSizeException;
 import simplegraph.data.exceptions.LineParsedException;
 
@@ -21,6 +27,9 @@ import simplegraph.data.exceptions.LineParsedException;
  * @author Martin Kramar
  */
 public class GraphDataCreator {
+    
+    private static final String DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
+    
     /**
      * Reads file with data in csv format.<br><br><br>
      * File example:
@@ -88,7 +97,12 @@ public class GraphDataCreator {
                 }
                     
                 try{
-                    Date date = parseDate(lineSplited[0]);
+                    Date date;
+                    if(header2 != null && header2[0] != null)
+                        date = parseDate(lineSplited[0], header2[0]);
+                    else
+                        date = parseDate(lineSplited[0], DATE_FORMAT);
+                    
                     lineParsed = parseLine(lineSplited);
                     
                     
@@ -108,6 +122,11 @@ public class GraphDataCreator {
                 }catch(NumberFormatException e){
                     if(!ignoreInvalidRows)
                         throw new LineParsedException(line, e);
+                } catch (ParseException ex) {
+                    Logger.getLogger(GraphDataCreator.class.getName()).log(Level.SEVERE, null, ex);
+                    if(!ignoreInvalidRows){
+                        throw new LineParsedException(line, ex);
+                    }
                 }   
             }
             
@@ -154,7 +173,8 @@ public class GraphDataCreator {
             a2[i] = new ArrayList<>();
     }
     
-    private static Date parseDate(String date){
-        return null;
+    private static Date parseDate(String date, String format) throws ParseException{
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        return dateFormat.parse(date);
     }
 }
