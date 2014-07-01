@@ -11,11 +11,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,7 +77,8 @@ public class GraphDataCreator {
                     header1 = lineSplited;
                     firstHeaderRowRead = true;
                     cols = lineSplited.length;
-                    initializeArrayLists(cols, dates, data);
+                    dates = new ArrayList<>();
+                    data = initializeArrayLists(cols);
                 }else if(!secondHeaderRowRead){
                     header2 = lineSplited;
                     secondHeaderRowRead = true;
@@ -93,7 +92,8 @@ public class GraphDataCreator {
                 lineSplited = line.split(",");
                 if(cols == 0){
                     cols = lineSplited.length;
-                    initializeArrayLists(cols, dates, data);
+                    dates = new ArrayList<>();
+                    data = initializeArrayLists(cols);
                 }
                     
                 try{
@@ -133,7 +133,22 @@ public class GraphDataCreator {
         }
         reader.close();
         
-        GraphData graphData = new GraphData(1, 1);
+        checkDataCount(dates, data);
+        
+        GraphData graphData = new GraphData(data.length, dates.size());
+        Date dateArray[] =  dates.toArray(new Date[dates.size()]);
+        
+        graphData.setDates(dateArray);
+        graphData.setVariableNames(header1);
+        graphData.setVariableUnits(header2);
+        
+        double dataArray[][] = new double[data.length][dates.size()];
+        for(int i=0; i<dataArray.length;i++)
+            for(int j=0; j< dates.size();j++)
+                dataArray[i][j] = data[i].get(j);
+            
+        graphData.setVariableValues(dataArray);
+        
         return graphData;
     }
     /**
@@ -166,15 +181,26 @@ public class GraphDataCreator {
         return ret;
     }
     
-    private static void initializeArrayLists(int cols, ArrayList<Date> a1, ArrayList<Double>[] a2){
-        a1 = new ArrayList<>();
-        a2 = new ArrayList[cols-1];
+    private static ArrayList<Double>[] initializeArrayLists(int cols){
+        
+        ArrayList<Double>[] a2 = new ArrayList[cols-1];
         for (int i = 0; i < a2.length; i++) 
             a2[i] = new ArrayList<>();
+        
+        return a2;
     }
     
     private static Date parseDate(String date, String format) throws ParseException{
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.parse(date);
+    }
+    
+    private static void checkDataCount(ArrayList a1, ArrayList[] a2) throws DifferentSizeException{
+        int length1 = a1.size();
+        for(int i=0; i<a2.length; i++)
+            if(length1 != a2[i].size())
+                throw new DifferentSizeException("Different count of values in dates and data column " + i + 
+                        "dates: " + length1 + 
+                        "column " + i + ": " + a2[i].size());
     }
 }
