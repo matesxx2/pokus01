@@ -26,14 +26,18 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import simplegraph.base.Dataset;
+import simplegraph.base.Graph;
+import simplegraph.base.GraphSettings;
+import simplegraph.base.TimeLevel;
 import simplegraph.data.GraphData;
 import simplegraph.data.GraphDataCreator;
 import simplegraph.data.exceptions.DifferentSizeException;
 import simplegraph.data.exceptions.LineParsedException;
+import simplegraph.graphs.GraphBuilder;
 import simplegraph.gui.dialog.DialogInfoMsg;
 import simplegraph.gui.dialog.DialogInfoMsgAdvanced;
 import simplegraph.gui.dialog.DialogInputForm;
-import simplegraph.gui.dialog.DialogQuestion;
 
 /**
  * 
@@ -65,6 +69,12 @@ public class SimpleGraphFrame extends JFrame{
     private static final String MENU_ITEM_DATA_READ_CSV = "Read csv...";
     private static final String MENU_ITEM_FILE_CLOSE = "Close";
     private static final String MENU_ITME_GRAPH_TEST = "New Test Graph";
+    
+    private static final String GRAPH_SETTINGS_TIMELEVEL = "Time level";
+    private static final String GRAPH_SETTINGS_X_XVALUE = "Number of displayed time units(x-axis)";
+    private static final String GRAPH_SETTINGS_Y_VALUES = "Number of displayed values(y-axis)";
+    private static final String GRAPH_SETTINGS_HORIZONTAL_GRID_GAP = "Space between grid lines";
+    private static final String GRAPH_SETTINGS_HORIZOTAL_GRID_OFFSET = "Space between border and grid line";
     
     private Properties properties;
     private GraphData graphData;
@@ -205,7 +215,7 @@ public class SimpleGraphFrame extends JFrame{
                 readCsvFile();
                 break;
             case MENU_ITME_GRAPH_TEST:
-                createGraph();
+                createTestGraph();
                 break;
         }
     }
@@ -265,19 +275,79 @@ public class SimpleGraphFrame extends JFrame{
         return menuItem;
     }
     
-    private void createGraph(){
-        DialogInputForm form = new DialogInputForm("BLABLA", this);
-        form.addRow("Jmeno:", null);
-        form.addRow("Prijmeni", new String[]{"vyplnte prijmeni..."});
-        form.addRow("Pohlavvi:", new String[]{"Muz","Zena"});
-        Map<String, String> result =  form.showDialog();
-        System.out.println("kdfjlajsf");
-        result.entrySet().stream().forEach((entry) -> {
-            String string = entry.getKey();
-            String string1 = entry.getValue();
-            System.out.println("key:\t" + string + "\nvalue:\t" + string1);
-        });
+    private void createTestGraph(){
+        if(graphData == null){
+            new DialogInfoMsg("Load data first!!!", this).setVisible(true);
+        }else{
+            
+            DialogInputForm form = new DialogInputForm("Create Test Graph", this);
+            addTestGraphSettingToForm(form);
+            addGraphSettingsToForm(form);
+        
+            Map<String, String> result =  form.showDialog();
+            GraphSettings graphSettings = createGraphSettingsFromTheForm(result);
+            Dataset dataset = new Dataset(graphData.getDates(), graphData.getVaulesForColumn(result.get("Choose data for display")));
+            Graph g = GraphBuilder.createTestGraph(dataset, graphSettings);
+            getContentPane().removeAll();
+            getContentPane().add(g.getDrawingArea());
+            /*
+            System.out.println("kdfjlajsf");
+            result.entrySet().stream().forEach((entry) -> {
+                String string = entry.getKey();
+                String string1 = entry.getValue();
+                System.out.println("key:\t" + string + "\nvalue:\t" + string1);
+            });
+            */
+        }
+        
                 
+    }
+    
+    private GraphSettings createGraphSettingsFromTheForm(Map<String,String> inputFormResult){
+        GraphSettings graphSettings = new GraphSettings();
+        graphSettings.setTimeLevel(convertStringToTimeLevel(inputFormResult.get(GRAPH_SETTINGS_TIMELEVEL)));
+        graphSettings.setNumOfDislplayedUnits(Integer.parseInt(inputFormResult.get(GRAPH_SETTINGS_X_XVALUE)));
+        graphSettings.setNumOfDisplayedValues(Integer.parseInt(inputFormResult.get(GRAPH_SETTINGS_Y_VALUES)));
+        graphSettings.setHorizontalGridGap(Integer.parseInt(inputFormResult.get(GRAPH_SETTINGS_HORIZONTAL_GRID_GAP)));
+        graphSettings.setHorizontalGridOffset(Integer.parseInt(inputFormResult.get(GRAPH_SETTINGS_HORIZOTAL_GRID_OFFSET)));
+        return graphSettings;
+    }
+    
+    private TimeLevel convertStringToTimeLevel(String timelevel){
+        if(timelevel==null)
+            return TimeLevel.SECOND;
+        else if(timelevel.equals(TimeLevel.SECOND.name()))
+            return TimeLevel.SECOND;
+        else if(timelevel.equals(TimeLevel.MINUTE.name()))
+            return TimeLevel.MINUTE;
+        else if(timelevel.equals(TimeLevel.HOUR.name()))
+            return TimeLevel.HOUR;
+        else if(timelevel.equals(TimeLevel.DAY.name()))
+            return TimeLevel.DAY;
+        else if(timelevel.equals(TimeLevel.WEEK.name()))
+            return TimeLevel.WEEK;
+        else if(timelevel.equals(TimeLevel.MONTH.name()))
+            return TimeLevel.MONTH;
+        else
+            return TimeLevel.SECOND;
+    }
+    
+    private void addTestGraphSettingToForm(DialogInputForm form){
+        form.addRow("Choose data for display", graphData.getVariableNames());
+    }
+    
+    private void addGraphSettingsToForm(DialogInputForm form){
+        form.addRow(GRAPH_SETTINGS_TIMELEVEL, new String[]{TimeLevel.SECOND.name(),
+        TimeLevel.MINUTE.name(),
+        TimeLevel.HOUR.name(),
+        TimeLevel.DAY.name(),
+        TimeLevel.WEEK.name(),
+        TimeLevel.MINUTE.name()});
+        
+        form.addRow(GRAPH_SETTINGS_X_XVALUE, new String[]{String.valueOf(GraphSettings.NUM_DISP_TIMES_DEFAULT)});
+        form.addRow(GRAPH_SETTINGS_Y_VALUES, new String[]{String.valueOf(GraphSettings.NUM_DISP_VALUES_DEFAULT)});
+        form.addRow(GRAPH_SETTINGS_HORIZOTAL_GRID_OFFSET, new String[]{String.valueOf(GraphSettings.OFFSET_DEFAULT)});
+        form.addRow(GRAPH_SETTINGS_HORIZONTAL_GRID_GAP, new String[]{String.valueOf(GraphSettings.GAP_DEFAULT)});
     }
     
     public static void main(String[] args){

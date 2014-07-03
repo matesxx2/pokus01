@@ -139,6 +139,13 @@ public class GraphDataCreator {
         Date dateArray[] =  dates.toArray(new Date[dates.size()]);
         
         graphData.setDates(dateArray);
+        
+        if(header1 == null){
+            header1 = new String[data.length];
+            for(int i=0; i<data.length; i++)
+                header1[i] = "Col_" + (i+1);
+        }
+            
         graphData.setVariableNames(header1);
         graphData.setVariableUnits(header2);
         

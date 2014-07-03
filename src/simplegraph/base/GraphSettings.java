@@ -13,10 +13,10 @@ package simplegraph.base;
  */
 public class GraphSettings {
      
-    private static final int NUM_DISP_TIMES_DEFAULT = 10;
-    private static final int NUM_DISP_VALUES_DEFAULT = 5;
-    private static final int OFFSET_DEFAULT = 30;
-    private static final int GAP_DEFAULT = 80;
+    public static final int NUM_DISP_TIMES_DEFAULT = 10;
+    public static final int NUM_DISP_VALUES_DEFAULT = 5;
+    public static final int OFFSET_DEFAULT = 30;
+    public static final int GAP_DEFAULT = 80;
     
     private TimeLevel timeLevel = TimeLevel.DAY;
     private int numOfDislplayedUnits = NUM_DISP_TIMES_DEFAULT;

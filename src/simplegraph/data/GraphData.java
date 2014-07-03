@@ -76,4 +76,16 @@ public class GraphData {
         this.variableUnits = variableUnits;
     }
     
+    public double[] getVaulesForColumn(String column){
+        for(int i=0; i<variableNames.length; i++){
+            if(variableNames[i].equals(column))
+                return variableValues[i]; 
+        }
+        return null;
+    }
+    
+    public double[] getVaulesForColumn(int colIndex){
+        return variableValues[colIndex];
+    }
+    
 }
