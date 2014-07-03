@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,7 @@ import simplegraph.data.exceptions.DifferentSizeException;
 import simplegraph.data.exceptions.LineParsedException;
 import simplegraph.gui.dialog.DialogInfoMsg;
 import simplegraph.gui.dialog.DialogInfoMsgAdvanced;
+import simplegraph.gui.dialog.DialogInputForm;
 import simplegraph.gui.dialog.DialogQuestion;
 
 /**
@@ -58,9 +60,11 @@ public class SimpleGraphFrame extends JFrame{
     //Labels for menu
     private static final String MENU_FILE = "File";
     private static final String MENU_DATA = "Data";
+    private static final String MENU_GRAPH = "Graph";
     
     private static final String MENU_ITEM_DATA_READ_CSV = "Read csv...";
     private static final String MENU_ITEM_FILE_CLOSE = "Close";
+    private static final String MENU_ITME_GRAPH_TEST = "New Test Graph";
     
     private Properties properties;
     private GraphData graphData;
@@ -183,7 +187,6 @@ public class SimpleGraphFrame extends JFrame{
                 new DialogInfoMsgAdvanced("Data reading failed", ex.getMessage(), this).setVisible(true);
             }
         }
-        new DialogInfoMsgAdvanced("JEDNA", "Dva", this).setVisible(true);
     }
     
 
@@ -201,6 +204,9 @@ public class SimpleGraphFrame extends JFrame{
             case MENU_ITEM_DATA_READ_CSV:
                 readCsvFile();
                 break;
+            case MENU_ITME_GRAPH_TEST:
+                createGraph();
+                break;
         }
     }
     
@@ -208,11 +214,14 @@ public class SimpleGraphFrame extends JFrame{
         JMenuBar jMenuBar = new JMenuBar();
         jMenuBar.add(createFileMenu());
         jMenuBar.add(createDataMenu());
+        jMenuBar.add(createGraphMenu());
         return jMenuBar;
     }
     
     private JMenu createFileMenu(){
         JMenu menu = new JMenu(MENU_FILE);
+        menu.add(createDataMenu());
+        menu.add(createGraphMenu());
         menu.add(createJMenuItem(MENU_ITEM_FILE_CLOSE));
         return menu;
     }
@@ -220,6 +229,12 @@ public class SimpleGraphFrame extends JFrame{
     private JMenu createDataMenu(){
         JMenu menu = new JMenu(MENU_DATA);
         menu.add(createJMenuItem(MENU_ITEM_DATA_READ_CSV));
+        return menu;
+    }
+    
+    private JMenu createGraphMenu(){
+        JMenu menu = new JMenu(MENU_GRAPH);
+        menu.add(createJMenuItem(MENU_ITME_GRAPH_TEST));
         return menu;
     }
     /**
@@ -248,6 +263,21 @@ public class SimpleGraphFrame extends JFrame{
         menuItem.setActionCommand(actionCommand);
         menuItem.addActionListener(this::actionClickOnMenu);
         return menuItem;
+    }
+    
+    private void createGraph(){
+        DialogInputForm form = new DialogInputForm("BLABLA", this);
+        form.addRow("Jmeno:", null);
+        form.addRow("Prijmeni", new String[]{"vyplnte prijmeni..."});
+        form.addRow("Pohlavvi:", new String[]{"Muz","Zena"});
+        Map<String, String> result =  form.showDialog();
+        System.out.println("kdfjlajsf");
+        result.entrySet().stream().forEach((entry) -> {
+            String string = entry.getKey();
+            String string1 = entry.getValue();
+            System.out.println("key:\t" + string + "\nvalue:\t" + string1);
+        });
+                
     }
     
     public static void main(String[] args){
