@@ -8,6 +8,8 @@ package pokusgithub;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -38,7 +40,8 @@ public class Main {
         //test1();
         //test2();
         //test3();
-        test4();
+        //test4();
+        test5();
     }
     
     public static void test1(){
@@ -133,6 +136,27 @@ public class Main {
         } catch (DifferentSizeException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         } catch (LineParsedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public static void test5(){
+        Date d = new Date(System.currentTimeMillis());
+        Class c = Main.class;
+        try {
+            Method method = c.getMethod("createCalendarFromDate", Date.class);
+            System.out.println("method:" + method.getName());
+            Calendar c1 = (Calendar)method.invoke(c, d);
+            System.err.println("c1:" + c1);
+        } catch (NoSuchMethodException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         
