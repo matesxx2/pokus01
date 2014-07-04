@@ -88,4 +88,28 @@ public class GraphData {
         return variableValues[colIndex];
     }
     
+    /**
+     * Creates {@link Dataset} with stored dates and column values specified 
+     * by coulmn's names in the array colnames.
+     * If more columns is specified then result {@link Dataset} object contains
+     * <i>n</i> dates and <i>n*count of columns</i> values which are at positions:
+     * 1st col: 0...,n-1
+     * 2nd col: n,...2n-1
+     * ....
+     * @param colnames - selelected column names
+     * @return 
+     */
+    public Dataset createDataset(String colnames[]){
+        double data[] = new double[colnames.length*countOfValues];
+        for (int i=0; i<colnames.length; i++) {
+            double colData[] = getVaulesForColumn(colnames[i]);
+            if(colData != null){
+                System.arraycopy(colData, 0, data, i*countOfValues, colData.length);
+            }else{
+                return null;
+            }
+        }
+        return new Dataset(dates, data);
+    }
+    
 }
