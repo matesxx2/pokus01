@@ -61,6 +61,7 @@ public class GraphDataCreator {
         String header2[] = null;
         ArrayList<Date> dates = null;
         ArrayList<Double> data[] = null;
+        String dateFormat = DATE_FORMAT;
         
         boolean firstHeaderRowRead = false;
         boolean secondHeaderRowRead = false;
@@ -74,14 +75,19 @@ public class GraphDataCreator {
                 lineSplited = line.split("\",\"");
                 lineSplited = removeQutes(lineSplited);
                 if(!firstHeaderRowRead){
-                    header1 = lineSplited;
+                    //header1 = lineSplited;
+                    header1 = new String[lineSplited.length-1];
+                    System.arraycopy(lineSplited, 1, header1, 0, lineSplited.length-1);
                     firstHeaderRowRead = true;
                     cols = lineSplited.length;
                     dates = new ArrayList<>();
                     data = initializeArrayLists(cols);
                 }else if(!secondHeaderRowRead){
-                    header2 = lineSplited;
+                    //header2 = lineSplited;
+                    header2 = new String[lineSplited.length-1];
+                    System.arraycopy(lineSplited, 1, header2, 0, lineSplited.length-1);
                     secondHeaderRowRead = true;
+                    dateFormat = lineSplited[0];
                     if(lineSplited.length != cols)
                         throw new DifferentSizeException(header1, header2);
                 }else{
@@ -97,12 +103,7 @@ public class GraphDataCreator {
                 }
                     
                 try{
-                    Date date;
-                    if(header2 != null && header2[0] != null)
-                        date = parseDate(lineSplited[0], header2[0]);
-                    else
-                        date = parseDate(lineSplited[0], DATE_FORMAT);
-                    
+                    Date date = parseDate(lineSplited[0], dateFormat);
                     lineParsed = parseLine(lineSplited);
                     
                     
