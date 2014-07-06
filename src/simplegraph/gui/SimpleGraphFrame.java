@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -35,9 +36,11 @@ import simplegraph.data.GraphDataCreator;
 import simplegraph.data.exceptions.DifferentSizeException;
 import simplegraph.data.exceptions.LineParsedException;
 import simplegraph.graphs.GraphBuilder;
+import simplegraph.graphs.GraphBuilderException;
 import simplegraph.gui.dialog.DialogInfoMsg;
 import simplegraph.gui.dialog.DialogInfoMsgAdvanced;
 import simplegraph.gui.dialog.DialogInputForm;
+import simplegraph.gui.dialog.DialogInputFormAdvanced;
 
 /**
  * 
@@ -70,6 +73,10 @@ public class SimpleGraphFrame extends JFrame{
     private static final String MENU_ITEM_FILE_CLOSE = "Close";
     private static final String MENU_ITME_GRAPH_TEST = "New Test Graph";
     
+    private static final String ACTION_COMMAND_CREATE_GRAPH = "Create Graph";
+    private static final String SECTION_DATA = "Data";
+    private static final String SECTION_GRAPH_SETTINGS = "GraphSettings";
+    
     private static final String GRAPH_SETTINGS_TIMELEVEL = "Time level";
     private static final String GRAPH_SETTINGS_X_XVALUE = "Number of displayed time units(x-axis)";
     private static final String GRAPH_SETTINGS_Y_VALUES = "Number of displayed values(y-axis)";
@@ -78,6 +85,7 @@ public class SimpleGraphFrame extends JFrame{
     
     private Properties properties;
     private GraphData graphData;
+    private GraphBuilder graphBuilder;
     
     public SimpleGraphFrame(){
         super(FRAME_TITLE);
@@ -93,6 +101,7 @@ public class SimpleGraphFrame extends JFrame{
     private void init(){
         properties = loadProperties();
         graphData = null;
+        graphBuilder = new GraphBuilder(graphData);
         
         init(properties);
         
@@ -217,6 +226,10 @@ public class SimpleGraphFrame extends JFrame{
             case MENU_ITME_GRAPH_TEST:
                 createTestGraph();
                 break;
+            case ACTION_COMMAND_CREATE_GRAPH:
+                JMenuItem i = (JMenuItem)actionEvent.getSource();
+                createGraph(i.getText());
+                break;
         }
     }
     
@@ -244,7 +257,11 @@ public class SimpleGraphFrame extends JFrame{
     
     private JMenu createGraphMenu(){
         JMenu menu = new JMenu(MENU_GRAPH);
-        menu.add(createJMenuItem(MENU_ITME_GRAPH_TEST));
+        
+        String graphNames[] = graphBuilder.getAvailableGraphs();
+        for (String graphName : graphNames) 
+            menu.add(createJMenuItem(graphName, ACTION_COMMAND_CREATE_GRAPH));
+        
         return menu;
     }
     /**
@@ -275,6 +292,46 @@ public class SimpleGraphFrame extends JFrame{
         return menuItem;
     }
     
+    private void createGraph(String graphName){
+        if(graphData == null)
+            new DialogInfoMsg("Load data first!!!", this).setVisible(true);
+        else{
+            
+            graphBuilder.setGraphData(graphData);
+            
+            //DialogInputForm form = new DialogInputForm("Create " + graphName, this);
+            DialogInputFormAdvanced form = new DialogInputFormAdvanced("Create " + graphName, this);
+            
+            //addGraphDataSelection(form, graphName);
+            addGraphDataSelectionAdvanced(form, graphName);
+            
+            //addGraphSettingsToForm(form);
+            addGraphSettingsToFormAdvanced(form);
+            
+            Map<String, String> result =  form.showDialog();
+            
+            //GraphSettings graphSettings = createGraphSettingsFromTheForm(result);
+            GraphSettings graphSettings = createGraphSettingsFromTheFormAdvanced(result);
+            
+            //String dataColnames[] = getGraphColnamesFromTheForm(result,graphName);
+            String dataColnames[] = getGraphColnamesFromTheFormAdvanced(result,graphName);
+            for (String string : dataColnames) {
+                System.out.println("data:" + string);
+            }
+            
+            Graph g;
+            try {
+                g = graphBuilder.createGraph(graphName, dataColnames, graphSettings);
+                getContentPane().removeAll();
+                getContentPane().add(g.getDrawingArea());
+            } catch (GraphBuilderException ex) {
+                Logger.getLogger(SimpleGraphFrame.class.getName()).log(Level.SEVERE, null, ex);
+                new DialogInfoMsg("Error", ex.getMessage(), this).setVisible(true);
+            }
+            
+        }
+    }
+    
     private void createTestGraph(){
         if(graphData == null){
             new DialogInfoMsg("Load data first!!!", this).setVisible(true);
@@ -303,6 +360,53 @@ public class SimpleGraphFrame extends JFrame{
                 
     }
     
+    private String[] getGraphColnamesFromTheForm(Map<String, String> result, String graphName) {
+        String graphRequiredColNames[] = graphBuilder.getRequiredDataDescription(graphName);
+        String ret[] = new String[graphRequiredColNames.length];
+        
+        //do maping graphRequiredColNames -> dataValuesNames
+        for(int i=0; i<graphRequiredColNames.length; i++)
+            ret[i] = result.get(graphRequiredColNames[i]);
+        
+        return ret;
+    }
+    
+    private String[] getGraphColnamesFromTheFormAdvanced(Map<String, String> result, String graphName) {
+        String graphRequiredColNames[] = graphBuilder.getRequiredDataDescription(graphName);
+        boolean isDataRepeatAllowed = graphBuilder.isAllowedRepeatData(graphName);
+        
+        if(isDataRepeatAllowed){
+            final String indexPattern = "_#i";
+            String pattern = SECTION_DATA + indexPattern;
+            int i = 0;
+            boolean stopFlag = false;
+            ArrayList<String> ret = new ArrayList<>();
+            while(true){
+                String key;
+                for(String colname:graphRequiredColNames){
+                    key = pattern.replace(indexPattern, String.valueOf(i)) + "." + colname;
+                    if(!result.containsKey(key)){
+                        stopFlag = true;
+                        break;
+                    }
+                    ret.add(result.get(key));
+                }
+                i++;
+                if(stopFlag)
+                    break;
+            }
+            return ret.toArray(new String[ret.size()]);
+        }else{
+            String ret[] = new String[graphRequiredColNames.length];
+        
+            //do maping graphRequiredColNames -> dataValuesNames
+            for(int i=0; i<graphRequiredColNames.length; i++)
+                ret[i] = result.get(SECTION_DATA + "." + graphRequiredColNames[i]);
+        
+            return ret;
+        }
+    }
+    
     private GraphSettings createGraphSettingsFromTheForm(Map<String,String> inputFormResult){
         GraphSettings graphSettings = new GraphSettings();
         graphSettings.setTimeLevel(convertStringToTimeLevel(inputFormResult.get(GRAPH_SETTINGS_TIMELEVEL)));
@@ -310,6 +414,16 @@ public class SimpleGraphFrame extends JFrame{
         graphSettings.setNumOfDisplayedValues(Integer.parseInt(inputFormResult.get(GRAPH_SETTINGS_Y_VALUES)));
         graphSettings.setHorizontalGridGap(Integer.parseInt(inputFormResult.get(GRAPH_SETTINGS_HORIZONTAL_GRID_GAP)));
         graphSettings.setHorizontalGridOffset(Integer.parseInt(inputFormResult.get(GRAPH_SETTINGS_HORIZOTAL_GRID_OFFSET)));
+        return graphSettings;
+    }
+    
+    private GraphSettings createGraphSettingsFromTheFormAdvanced(Map<String,String> inputFormResult){
+        GraphSettings graphSettings = new GraphSettings();
+        graphSettings.setTimeLevel(convertStringToTimeLevel(inputFormResult.get(SECTION_GRAPH_SETTINGS + "." + GRAPH_SETTINGS_TIMELEVEL)));
+        graphSettings.setNumOfDislplayedUnits(Integer.parseInt(inputFormResult.get(SECTION_GRAPH_SETTINGS + "." + GRAPH_SETTINGS_X_XVALUE)));
+        graphSettings.setNumOfDisplayedValues(Integer.parseInt(inputFormResult.get(SECTION_GRAPH_SETTINGS + "." + GRAPH_SETTINGS_Y_VALUES)));
+        graphSettings.setHorizontalGridGap(Integer.parseInt(inputFormResult.get(SECTION_GRAPH_SETTINGS + "." + GRAPH_SETTINGS_HORIZONTAL_GRID_GAP)));
+        graphSettings.setHorizontalGridOffset(Integer.parseInt(inputFormResult.get(SECTION_GRAPH_SETTINGS + "." + GRAPH_SETTINGS_HORIZOTAL_GRID_OFFSET)));
         return graphSettings;
     }
     
@@ -336,6 +450,19 @@ public class SimpleGraphFrame extends JFrame{
         form.addRow("Choose data for display", graphData.getVariableNames());
     }
     
+    private void addGraphDataSelection(DialogInputForm form, String graphName){
+        String requiredDataDescription[] = graphBuilder.getRequiredDataDescription(graphName);
+        for (String description : requiredDataDescription)
+            form.addRow(description, graphData.getVariableNames());
+    }
+    
+    private void addGraphDataSelectionAdvanced(DialogInputFormAdvanced form, String graphName){
+        String requiredDataDescription[] = graphBuilder.getRequiredDataDescription(graphName);
+        int id = form.createSection(SECTION_DATA, graphBuilder.isAllowedRepeatData(graphName));
+        for (String description : requiredDataDescription)
+            form.addRowToSection(id, description, graphData.getVariableNames());
+    }
+    
     private void addGraphSettingsToForm(DialogInputForm form){
         form.addRow(GRAPH_SETTINGS_TIMELEVEL, new String[]{TimeLevel.SECOND.name(),
         TimeLevel.MINUTE.name(),
@@ -348,6 +475,21 @@ public class SimpleGraphFrame extends JFrame{
         form.addRow(GRAPH_SETTINGS_Y_VALUES, new String[]{String.valueOf(GraphSettings.NUM_DISP_VALUES_DEFAULT)});
         form.addRow(GRAPH_SETTINGS_HORIZOTAL_GRID_OFFSET, new String[]{String.valueOf(GraphSettings.OFFSET_DEFAULT)});
         form.addRow(GRAPH_SETTINGS_HORIZONTAL_GRID_GAP, new String[]{String.valueOf(GraphSettings.GAP_DEFAULT)});
+    }
+    
+    private void addGraphSettingsToFormAdvanced(DialogInputFormAdvanced form){
+        int id = form.createSection(SECTION_GRAPH_SETTINGS, false);
+        form.addRowToSection(id,GRAPH_SETTINGS_TIMELEVEL, new String[]{TimeLevel.SECOND.name(),
+        TimeLevel.MINUTE.name(),
+        TimeLevel.HOUR.name(),
+        TimeLevel.DAY.name(),
+        TimeLevel.WEEK.name(),
+        TimeLevel.MINUTE.name()});
+        
+        form.addRowToSection(id, GRAPH_SETTINGS_X_XVALUE, new String[]{String.valueOf(GraphSettings.NUM_DISP_TIMES_DEFAULT)});
+        form.addRowToSection(id, GRAPH_SETTINGS_Y_VALUES, new String[]{String.valueOf(GraphSettings.NUM_DISP_VALUES_DEFAULT)});
+        form.addRowToSection(id, GRAPH_SETTINGS_HORIZOTAL_GRID_OFFSET, new String[]{String.valueOf(GraphSettings.OFFSET_DEFAULT)});
+        form.addRowToSection(id, GRAPH_SETTINGS_HORIZONTAL_GRID_GAP, new String[]{String.valueOf(GraphSettings.GAP_DEFAULT)});
     }
     
     public static void main(String[] args){
