@@ -9,6 +9,7 @@ package simplegraph.graphs;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -24,8 +25,6 @@ import simplegraph.data.GraphData;
  */
 public class GraphBuilder {
     
-    private static final String TEST_GRAPH_NAME = "Test Graph";
-    
     private final Map<String, Method> graphsCreateMethod;
     private GraphData graphData;
     private final Map<String, String[]> graphDataDescription;
@@ -35,15 +34,21 @@ public class GraphBuilder {
         //set data description
         graphDataDescription = new HashMap<>();
         graphDataDescription.put(TestGraph.graphName, new String[]{"Data for display"});
+        graphDataDescription.put(LineGraph.graphName, new String[]{"Data for display"});
+        graphDataDescription.put(BarGraph.graphName, new String[]{"Data for display"});
         
         //set if data repeat is allowed
         graphDataRepeatable = new HashMap<>();
         graphDataRepeatable.put(TestGraph.graphName, Boolean.FALSE);
+        graphDataRepeatable.put(LineGraph.graphName, Boolean.TRUE);
+        graphDataRepeatable.put(BarGraph.graphName, Boolean.TRUE);
         
         //set graph create method
         graphsCreateMethod = new HashMap<>();
         try {
             graphsCreateMethod.put(TestGraph.graphName, this.getClass().getMethod("createTestGraph", Dataset.class, GraphSettings.class));
+            graphsCreateMethod.put(LineGraph.graphName, this.getClass().getMethod("createLineGraph", Dataset.class, GraphSettings.class));
+            graphsCreateMethod.put(BarGraph.graphName, this.getClass().getMethod("createBarGraph", Dataset.class, GraphSettings.class));
         } catch (NoSuchMethodException | SecurityException ex) {
             Logger.getLogger(GraphBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -78,13 +83,18 @@ public class GraphBuilder {
     
     
     public static Graph createTestGraph(Dataset dataset, GraphSettings settings){
-        System.out.println("createTestGraph..jsem zde");
-        System.out.println("dataset:" + dataset);
-        System.out.println("settings:" + settings);
         Graph g = TestGraph.create(dataset, settings);
-        System.out.println("Uz je po vsem g:" + g);
         return g;
         //return null;
+    }
+    
+    public static Graph createLineGraph(Dataset dataset, GraphSettings settings) throws Exception{
+        System.out.println(Arrays.toString(dataset.getData()));
+        return LineGraph.create(dataset, settings);
+    }
+    
+    public static Graph createBarGraph(Dataset dataset, GraphSettings settings) throws Exception{
+        return BarGraph.createBarGraph(dataset, settings);
     }
     
     public Graph createGraph(String graphName, String[]graphDataColumns, GraphSettings graphSettings) throws GraphBuilderException{
@@ -94,6 +104,7 @@ public class GraphBuilder {
         
         // check dataset
         Dataset dataset = graphData.createDataset(graphDataColumns);
+        System.out.println("dataset:" + Arrays.toString(dataset.getData()));
         if(dataset == null){
             throw new GraphBuilderException("Graphdata can not create dataset\n"
                     + "required columns:\n"

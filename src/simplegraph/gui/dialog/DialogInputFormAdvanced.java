@@ -37,6 +37,9 @@ public class DialogInputFormAdvanced extends JDialog{
     private static final String BUTTON_NEXT = "Add";
     private static final int COLS = 15;
     
+    public static final String INDEX_DELIMITER = "_";
+    public static final String JOIN_DELIMITER = ".";
+    
     
     /**user inserted values which will be returned*/
     private Map<String, String> formValues;
@@ -142,25 +145,25 @@ public class DialogInputFormAdvanced extends JDialog{
             if(row.options == null || row.options.length == 0){
                 JTextField textField = new JTextField();
                 if(section.repeatable)
-                    textFields.put(section.sectionName + "_" + index + "." + row.label, textField);
+                    textFields.put(section.sectionName + INDEX_DELIMITER + index + JOIN_DELIMITER + row.label, textField);
                 else
-                    textFields.put(section.sectionName + "." + row.label, textField);
+                    textFields.put(section.sectionName + JOIN_DELIMITER + row.label, textField);
                     
                 rowPanel.add(textField);     
             }else if (row.options.length == 1){
                 JTextField textField = new JTextField(row.options[0]);
                 if(section.repeatable)
-                    textFields.put(section.sectionName + "_" + index + "." + row.label, textField);
+                    textFields.put(section.sectionName + INDEX_DELIMITER + index + JOIN_DELIMITER + row.label, textField);
                 else
-                    textFields.put(section.sectionName + "." + row.label, textField);
+                    textFields.put(section.sectionName + JOIN_DELIMITER + row.label, textField);
                     
                 rowPanel.add(textField);
             }else{
                 JComboBox<String> comboBox = new JComboBox<>(row.options);
                 if(section.repeatable)
-                    comboBoxes.put(section.sectionName + "_" + index + "." + row.label, comboBox);
+                    comboBoxes.put(section.sectionName + INDEX_DELIMITER + index + JOIN_DELIMITER + row.label, comboBox);
                 else
-                    comboBoxes.put(section.sectionName + "." + row.label, comboBox);
+                    comboBoxes.put(section.sectionName + JOIN_DELIMITER + row.label, comboBox);
                 rowPanel.add(comboBox);
             }
             p.add(rowPanel);

@@ -7,6 +7,7 @@
 package pokusgithub;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,6 +31,7 @@ import simplegraph.data.GraphDataCreator;
 import simplegraph.data.exceptions.DifferentSizeException;
 import simplegraph.data.exceptions.LineParsedException;
 import simplegraph.graphs.GraphBuilder;
+import simplegraph.graphs.TestGraph;
 
 /**
  *
@@ -41,7 +43,8 @@ public class Main {
         //test2();
         //test3();
         //test4();
-        test5();
+        //test5();
+        test6();
     }
     
     public static void test1(){
@@ -131,6 +134,7 @@ public class Main {
             GraphData graphData = GraphDataCreator.readCsvFile("data/data01.csv", true);
             System.out.println(graphData.getDates()[0]);
             System.out.println(graphData.getDates()[1]);
+            
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         } catch (DifferentSizeException ex) {
@@ -140,13 +144,24 @@ public class Main {
         }
     }
     
+    public static void add(int a, int b){
+        System.out.println("a+b:" + (a+b));
+    }
+    
     public static void test5(){
+        
         Date d = new Date(System.currentTimeMillis());
         Class c = Main.class;
         try {
+            /*
             Method method = c.getMethod("createCalendarFromDate", Date.class);
             System.out.println("method:" + method.getName());
             Calendar c1 = (Calendar)method.invoke(c, d);
+            System.err.println("c1:" + c1);
+            */
+            Method method = c.getMethod("add", int.class, int.class);
+            System.out.println("method:" + method.getName());
+            Calendar c1 = (Calendar)method.invoke(c, 1, 1);
             System.err.println("c1:" + c1);
         } catch (NoSuchMethodException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -159,6 +174,24 @@ public class Main {
         } catch (InvocationTargetException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+    }
+    
+    public static void test6(){
+        String pattern = "AHOJ_#i_NAZDAR";
+        System.out.println("pattern:" + pattern);
+        
+        String replace1 = pattern.replace("#i", "");
+        System.out.println("replace1:" + replace1);
+        
+        String replace2 = pattern.replace("#i", String.valueOf(10));
+        System.out.println("replace2:" + replace2);
+        
+        
+        
+        System.out.println("Cerna:" + Color.BLACK.getRGB());
+        System.out.println("Cervena:" + Color.RED.getRGB());
+        System.out.println("Zelena:" + Color.GREEN.getRGB());
         
     }
     

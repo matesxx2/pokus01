@@ -20,6 +20,8 @@ import simplegraph.base.GraphSettings;
  * @author petr
  */
 public class TestGraph extends Graph{
+    
+    protected static final String graphName = "VOLE";
 
     private TestGraph(Dataset dataset, GraphSettings settings) {
         super(dataset, settings);   

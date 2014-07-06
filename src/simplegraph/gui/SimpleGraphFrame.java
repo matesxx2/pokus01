@@ -315,6 +315,7 @@ public class SimpleGraphFrame extends JFrame{
             
             //String dataColnames[] = getGraphColnamesFromTheForm(result,graphName);
             String dataColnames[] = getGraphColnamesFromTheFormAdvanced(result,graphName);
+            System.out.println("Data v datasetu:");
             for (String string : dataColnames) {
                 System.out.println("data:" + string);
             }
@@ -376,15 +377,15 @@ public class SimpleGraphFrame extends JFrame{
         boolean isDataRepeatAllowed = graphBuilder.isAllowedRepeatData(graphName);
         
         if(isDataRepeatAllowed){
-            final String indexPattern = "_#i";
-            String pattern = SECTION_DATA + indexPattern;
+            final String indexPattern = "#i";
+            String pattern = SECTION_DATA + DialogInputFormAdvanced.INDEX_DELIMITER + indexPattern;
             int i = 0;
             boolean stopFlag = false;
             ArrayList<String> ret = new ArrayList<>();
             while(true){
                 String key;
                 for(String colname:graphRequiredColNames){
-                    key = pattern.replace(indexPattern, String.valueOf(i)) + "." + colname;
+                    key = pattern.replace(indexPattern, String.valueOf(i)) + DialogInputFormAdvanced.JOIN_DELIMITER + colname;
                     if(!result.containsKey(key)){
                         stopFlag = true;
                         break;

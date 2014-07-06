@@ -10,7 +10,7 @@ import java.awt.Graphics;
 
 /**
  *
- * @author petr
+ * @author Martin
  */
 public class Line implements Drawable{
     

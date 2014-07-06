@@ -83,5 +83,13 @@ public class Dataset {
                 maxValue = data[i];
         }
     }
+    
+    public void setMinValueHardcoded(double value){
+        this.minValue = value;
+    }
+    
+    public void setMaxValueHardcoded(double value){
+        this.maxValue = value;
+    }
    
 }

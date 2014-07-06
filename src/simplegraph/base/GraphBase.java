@@ -133,11 +133,11 @@ public abstract class GraphBase extends GraphPane{
      * @param d2
      * @return 
      */
-    private long diffDatesInMillis(Date d1, Date d2){
+    protected long diffDatesInMillis(Date d1, Date d2){
         return createCalendarFromDate(d2).getTimeInMillis() - createCalendarFromDate(d1).getTimeInMillis();
     }
     
-    private Calendar createCalendarFromDate(Date date){
+    protected Calendar createCalendarFromDate(Date date){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         return calendar;
