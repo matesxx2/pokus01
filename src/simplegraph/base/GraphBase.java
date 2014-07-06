@@ -64,7 +64,11 @@ public abstract class GraphBase extends GraphPane{
         int gridGap = (getBorderRectangle().height-2*getHorizontalGridOffset())/(graph.getSettings().getNumOfDisplayedValues()-1);
         setHorizontalGridGap(gridGap);//newly computed grid gap
         for(int i=0; i<labels.length; i++){
-            labels[i] = String.valueOf(getValueFromPixel(pixel)).substring(0, 6);
+            String tmp = String.valueOf(getValueFromPixel(pixel));
+            if(tmp.length() > 6)
+                labels[i] = tmp.substring(0, 6);
+            else
+                labels[i] = tmp;
             pixel += getHorizontalGridGap();
         }
         setHorizontalLabels(labels);
